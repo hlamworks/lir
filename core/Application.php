@@ -5,6 +5,12 @@
 *********************************************/
 abstract class Application {
 
+	protected $debug = false;
+	protected $request;
+	protected $response;
+	protected $session;
+	protected $db_manager;
+
 	public function __construct($debug = false){
 		$this -> setDebugMode($debug);
 		$this -> initialize();
@@ -35,5 +41,45 @@ abstract class Application {
 	abstract protected function configure();
 	abstract public function getRootDir();
 	abstract protected function registerRoute();
+	
+	
+	//Getter
+	public function isDebugMode(){
+		return $this -> debug;
+	}
+	
+	public function getRequest(){
+		return $this -> request;
+	}
+	
+	public function getResponse(){
+		return $this -> response;
+	}
+	
+	public function getSession(){
+		return $this -> session;
+	}
+	
+	public function getDbManager(){
+		return $this -> db_manager;
+	}
+	
+	public function getControllerDir(){
+		return $this -> getRootDir() .'/controllers';
+	}
+	
+	public function getViewDir(){
+		return $this -> getRootDir() .'/views';
+	}
+	
+	public function getModelDir(){
+		return $this -> getRootDir() .'/models';
+	}
+	
+	public function getWebDir(){
+		return $this -> getRootDir() .'/web';
+	}
+	
+	//コントローラの呼び出し
 	
 }
