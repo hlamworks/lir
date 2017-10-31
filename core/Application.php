@@ -81,5 +81,78 @@ abstract class Application {
 	}
 	
 	//コントローラの呼び出し
+	public function run(){
+
+		try {
+			$params = $this -> router -> resolve($this -> request -> getPathInfo());
+			
+			if($params === false){
+				throw new HttpNotFoundException('No route found for'. $this -> request -> getPathInfo());
+			}
+			
+			$controller = $params['controller'];
+			$action = $params['action'];
+			
+			$this -> runAction($controller, $action, $params);
+		}catch(HttpNotFoundException $e){
+			//404Error
+			$this -> render404Page($e);
+		}
+		
+		$this -> response -> send();
+	}
 	
+	public function runAction($controller_name, $action, $params = array()){
+		//クラス名作成
+		$controller_class = ucfirst($controller_name).'Controller';
+		
+		$controller = $this -> findController($controller_class);
+		if($controller === false){
+			throw new HttpdNotFoundException($controller_class. 'controller is not found.');
+		}
+		
+		$content = $controller -> run($action, $params);
+		
+		$this -> response -> setContent($content);
+	}
+	
+	protected function findController($controller_class){
+		if(!class_exists($controller_class)){
+			$controller_file = $this -> getControllerDir() .'/'. $controller_class .'.php';
+			if(!is_readable($controller_file)){
+				return false;
+			}else{
+				require_once $controller_file;
+				
+				if(!class_exists($controller_class)){
+					return false;
+				}
+			}
+		}
+		
+		return new $controller_class($this);
+	}
+	
+	protected function render404Page($e){
+		$this -> response -> setStatusCode(404, 'Not Found');
+		$message = $this -> isDebugMode() ? $e -> getMessage() : 'Page Not Found';
+		$message htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+		
+		//出力内容
+		$output_text = <<<EOF
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>404 Error Page</title>
+	</head>
+	
+	<body>
+		{$message}
+	</body>
+</html>
+EOF;
+		
+		$this -> response -> setContent($message);
+	}
 }
