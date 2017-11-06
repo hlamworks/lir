@@ -1,7 +1,7 @@
 ﻿<?php
 /********************************************
-	Date: 2017/10/31
-	Description: セッション管理
+	Date: 2017/11/06
+	Description: Session 管理
 *********************************************/
 class Session {
 	protected static $sessionStarted = false;
@@ -27,20 +27,16 @@ class Session {
 		return $default;
 	}
 	
+	public function remove($name){
+		unset($_SESSION[$name]);
+	}
+	
 	public function clear(){
 		$_SESSION = array();
 	}
 	
-	public function regenerate($destroy = true){
-		if(!self::$sessionIdRegenerated){
-			session_regenerate_id($destroy);
-			
-			self::$sessionIdRegerated = true;
-		}
-	}
-	
 	public function setAuthenticated($bool){
-		$this -> set('_authenticated', (bool)$bool);
+		$this -> set('_authenticated',(bool)$bool);
 		
 		$this -> regenerate();
 	}
@@ -48,5 +44,4 @@ class Session {
 	public function isAuthenticated(){
 		return $this -> get('_authenticated', false);
 	}
-	
 }
